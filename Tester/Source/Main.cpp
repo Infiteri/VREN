@@ -2,11 +2,18 @@
 #include "Renderer.h"
 #include "Core/Logger.h"
 
+static void OnResize(GLFWwindow *_, int w, int h)
+{
+    VREN::Renderer::ResizeViewport(w, h);
+}
+
 struct Window
 {
-    GLFWwindow* handle;
+    GLFWwindow *handle;
 
-    void Init(int width, int height, const char* title)
+    int Width, Height;
+
+    void Init(int width, int height, const char *title)
     {
         if (!glfwInit())
             return;
@@ -17,6 +24,8 @@ struct Window
             glfwTerminate();
             return;
         }
+
+        glfwSetWindowSizeCallback(handle, OnResize);
 
         glfwMakeContextCurrent(handle);
     }
@@ -30,6 +39,8 @@ struct Window
     {
         glfwSwapBuffers(handle);
         glfwPollEvents();
+
+        glfwGetWindowSize(handle, &Width, &Height);
     }
 
     void Shutdown()
@@ -45,11 +56,17 @@ int main()
     window.Init(1920, 1080, "My Window");
 
     VREN::Renderer::Init();
+    window.Update();
+    VREN::Renderer::ResizeViewport(window.Width, window.Height);
+
     while (!window.ShouldClose())
     {
         window.Update();
 
-        VREN::Renderer::ClearScreen(255,255,255,255);
+        VREN::Renderer::BeginFrame();
+        VREN::Renderer::ClearScreen(255, 255, 255, 255);
+        VREN::Renderer::Render();
+        VREN::Renderer::EndFrame();
     }
 
     window.Shutdown();

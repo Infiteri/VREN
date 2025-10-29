@@ -40,8 +40,8 @@ namespace VREN
     };
 }
 
-#define VREN_LOG(lvl, msg, ...)                                            \
-    {                                                                      \
-        if (VREN::Logger::GetActiveLogger())                                \
-            VREN::Logger::GetActiveLogger()->Log(lvl, msg, ##__VA_ARGS__); \
+#define VREN_LOG(lvl, msg, ...)                                                            \
+    {                                                                                      \
+        if (VREN::Logger::GetActiveLogger())                                               \
+            VREN::Logger::GetActiveLogger()->Log(VREN::LogLevel::lvl, msg, ##__VA_ARGS__); \
     }
