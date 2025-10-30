@@ -70,6 +70,11 @@ namespace VREN
         glUniform1i(GetUniLoc(name), i);
     }
 
+    void Shader::Mat4(const Matrix4 &mat, const char *name)
+    {
+        glUniformMatrix4fv(GetUniLoc(name), 1, GL_FALSE, mat.data);
+    }
+
     // private details
     void Shader::LoadUniforms()
     {
@@ -141,6 +146,11 @@ namespace VREN
 
     u32 Shader::GetUniLoc(const char *name)
     {
-        return uniforms.find(name) != uniforms.end() ? uniforms[name] : 0;
+        auto it = uniforms.find(name);
+        if (it != uniforms.end())
+            return it->second;
+
+        VREN_LOG(Error, "Uniform not found: %s", name);
+        return 0;
     }
 }

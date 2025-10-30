@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Base.h"
+#include "Camera/Camera.h"
 #include "GPUScreen.h"
 
 namespace VREN
@@ -26,11 +27,14 @@ namespace VREN
         /// @brief Will clear the screen with a certain color (ranging from 0-255)
         static void ClearScreen(float r = 255, float g = 255, float b = 255, float a = 255);
 
+        static void SetActiveCamera(std::shared_ptr<Camera> camera);
+
     public:
         struct State
         {
             GPUScreen Screen;
             Viewport VP;
+            std::shared_ptr<Camera> ActiveCamera;
         };
     };
 }

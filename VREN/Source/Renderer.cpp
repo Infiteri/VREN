@@ -1,28 +1,79 @@
 #include "Renderer.h"
 #include "Core/Logger.h"
 #include "Shader.h"
+#include "Camera/PerspectiveCamera.h"
 #include <glad/glad.h>
 
 namespace VREN
 {
     static Renderer::State state;
+    static std::shared_ptr<Shader> TestShader;
+    static std::shared_ptr<VertexArray> TestVAO;
 
     void Renderer::Init()
     {
-        VREN_LOG(Info, "Starting...");
-        VREN_LOG(Info, "Loaded Glad context...");
+        VREN_LOG(Info, "Starting Renderer...");
         gladLoadGL();
 
-        VREN_LOG(Info, "Creating GPU Screen...");
-        {
-            GPUScreenConfiguration conf;
-            conf.Width = 1280;
-            conf.Height = 720;
-            state.Screen.Init(conf);
-        }
+        GPUScreenConfiguration conf;
+        conf.Width = 1280;
+        conf.Height = 720;
+        state.Screen.Init(conf);
 
-        VREN_LOG(Info, "Finished Renderer Initalization...");
+        TestShader = std::make_shared<Shader>("Obj.glsl");
+
+        float vertices[] = {
+            -0.5f, -0.5f, -0.5f,
+            0.5f, -0.5f, -0.5f,
+            0.5f, 0.5f, -0.5f,
+            0.5f, 0.5f, -0.5f,
+            -0.5f, 0.5f, -0.5f,
+            -0.5f, -0.5f, -0.5f,
+
+            -0.5f, -0.5f, 0.5f,
+            0.5f, -0.5f, 0.5f,
+            0.5f, 0.5f, 0.5f,
+            0.5f, 0.5f, 0.5f,
+            -0.5f, 0.5f, 0.5f,
+            -0.5f, -0.5f, 0.5f,
+
+            -0.5f, 0.5f, 0.5f,
+            -0.5f, 0.5f, -0.5f,
+            -0.5f, -0.5f, -0.5f,
+            -0.5f, -0.5f, -0.5f,
+            -0.5f, -0.5f, 0.5f,
+            -0.5f, 0.5f, 0.5f,
+
+            0.5f, 0.5f, 0.5f,
+            0.5f, 0.5f, -0.5f,
+            0.5f, -0.5f, -0.5f,
+            0.5f, -0.5f, -0.5f,
+            0.5f, -0.5f, 0.5f,
+            0.5f, 0.5f, 0.5f,
+
+            -0.5f, -0.5f, -0.5f,
+            0.5f, -0.5f, -0.5f,
+            0.5f, -0.5f, 0.5f,
+            0.5f, -0.5f, 0.5f,
+            -0.5f, -0.5f, 0.5f,
+            -0.5f, -0.5f, -0.5f,
+
+            -0.5f, 0.5f, -0.5f,
+            0.5f, 0.5f, -0.5f,
+            0.5f, 0.5f, 0.5f,
+            0.5f, 0.5f, 0.5f,
+            -0.5f, 0.5f, 0.5f,
+            -0.5f, 0.5f, -0.5f};
+
+        TestVAO = std::make_shared<VertexArray>();
+        TestVAO->GenerateVertexBuffer(vertices, sizeof(vertices));
+        auto vbo = TestVAO->GetVertexBuffer();
+        vbo->AddLayout(0, 0, 3);
+        vbo->Bind();
+
+        glEnable(GL_DEPTH_TEST);
         ResizeViewport(1280, 720);
+        VREN_LOG(Info, "Renderer initialized (Cube).");
     }
 
     void Renderer::BeginFrame()
@@ -32,13 +83,23 @@ namespace VREN
 
     void Renderer::Render()
     {
+        TestShader->Use();
+
+        if (state.ActiveCamera)
+        {
+            TestShader->Mat4(state.ActiveCamera->GetProjection(), "uProj");
+            TestShader->Mat4(state.ActiveCamera->GetView(), "uView");
+        }
+
+        TestVAO->Bind();
+        TestVAO->GetVertexBuffer()->Bind();
+        glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
     void Renderer::EndFrame()
     {
         state.Screen.End();
 
-        // todo: Somewhere else?
         FBRenderPass *pass = state.Screen.Buffer->GetRenderPass(0);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, pass->Id);
@@ -52,8 +113,11 @@ namespace VREN
     {
         state.VP.Width = newWidth;
         state.VP.Height = newHeight;
-
         state.Screen.Resize(newWidth, newHeight);
+
+        if (state.ActiveCamera)
+            state.ActiveCamera->SetAspect(newWidth, newHeight);
+
         glViewport(0, 0, newWidth, newHeight);
     }
 
@@ -66,5 +130,10 @@ namespace VREN
     {
         glClearColor(r / 255, g / 255, b / 255, a / 255);
         glClear(GL_COLOR_BUFFER_BIT);
+    }
+
+    void Renderer::SetActiveCamera(std::shared_ptr<Camera> camera)
+    {
+        state.ActiveCamera = camera;
     }
 }
