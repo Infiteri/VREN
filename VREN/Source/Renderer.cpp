@@ -7,8 +7,7 @@
 namespace VREN
 {
     static Renderer::State state;
-    static std::shared_ptr<Shader> TestShader;
-    static std::shared_ptr<VertexArray> TestVAO;
+    static std::shared_ptr<Shader> ObjectShader;
 
     void Renderer::Init()
     {
@@ -20,56 +19,10 @@ namespace VREN
         conf.Height = 720;
         state.Screen.Init(conf);
 
-        TestShader = std::make_shared<Shader>("Obj.glsl");
+        state.CubeBatch = std::make_shared<CubeBatchRenderer>();
+        state.CubeBatch->Init();
 
-        float vertices[] = {
-            -0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, -0.5f,
-            0.5f, 0.5f, -0.5f,
-            0.5f, 0.5f, -0.5f,
-            -0.5f, 0.5f, -0.5f,
-            -0.5f, -0.5f, -0.5f,
-
-            -0.5f, -0.5f, 0.5f,
-            0.5f, -0.5f, 0.5f,
-            0.5f, 0.5f, 0.5f,
-            0.5f, 0.5f, 0.5f,
-            -0.5f, 0.5f, 0.5f,
-            -0.5f, -0.5f, 0.5f,
-
-            -0.5f, 0.5f, 0.5f,
-            -0.5f, 0.5f, -0.5f,
-            -0.5f, -0.5f, -0.5f,
-            -0.5f, -0.5f, -0.5f,
-            -0.5f, -0.5f, 0.5f,
-            -0.5f, 0.5f, 0.5f,
-
-            0.5f, 0.5f, 0.5f,
-            0.5f, 0.5f, -0.5f,
-            0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, 0.5f,
-            0.5f, 0.5f, 0.5f,
-
-            -0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, 0.5f,
-            0.5f, -0.5f, 0.5f,
-            -0.5f, -0.5f, 0.5f,
-            -0.5f, -0.5f, -0.5f,
-
-            -0.5f, 0.5f, -0.5f,
-            0.5f, 0.5f, -0.5f,
-            0.5f, 0.5f, 0.5f,
-            0.5f, 0.5f, 0.5f,
-            -0.5f, 0.5f, 0.5f,
-            -0.5f, 0.5f, -0.5f};
-
-        TestVAO = std::make_shared<VertexArray>();
-        TestVAO->GenerateVertexBuffer(vertices, sizeof(vertices));
-        auto vbo = TestVAO->GetVertexBuffer();
-        vbo->AddLayout(0, 0, 3);
-        vbo->Bind();
+        ObjectShader = std::make_shared<Shader>("Obj.glsl");
 
         glEnable(GL_DEPTH_TEST);
         ResizeViewport(1280, 720);
@@ -79,25 +32,23 @@ namespace VREN
     void Renderer::BeginFrame()
     {
         state.Screen.Begin();
+        state.CubeBatch->Begin();
     }
 
     void Renderer::Render()
     {
-        TestShader->Use();
+        ObjectShader->Use();
 
         if (state.ActiveCamera)
         {
-            TestShader->Mat4(state.ActiveCamera->GetProjection(), "uProj");
-            TestShader->Mat4(state.ActiveCamera->GetView(), "uView");
+            ObjectShader->Mat4(state.ActiveCamera->GetProjection(), "uProj");
+            ObjectShader->Mat4(Matrix4::Invert(state.ActiveCamera->GetView()), "uView");
         }
-
-        TestVAO->Bind();
-        TestVAO->GetVertexBuffer()->Bind();
-        glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
     void Renderer::EndFrame()
     {
+        state.CubeBatch->End(std::static_pointer_cast<PerspectiveCamera>(state.ActiveCamera), ObjectShader);
         state.Screen.End();
 
         FBRenderPass *pass = state.Screen.Buffer->GetRenderPass(0);
@@ -135,5 +86,10 @@ namespace VREN
     void Renderer::SetActiveCamera(std::shared_ptr<Camera> camera)
     {
         state.ActiveCamera = camera;
+    }
+
+    void Renderer::RenderCube(const Transform &t, const Material &mat)
+    {
+        state.CubeBatch->Submit(t, mat);
     }
 }

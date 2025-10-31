@@ -3,6 +3,7 @@
 #include "Base.h"
 #include "Camera/Camera.h"
 #include "GPUScreen.h"
+#include "BatchRenderer.h"
 
 namespace VREN
 {
@@ -29,12 +30,15 @@ namespace VREN
 
         static void SetActiveCamera(std::shared_ptr<Camera> camera);
 
+        static void RenderCube(const Transform &t, const Material &mat);
+
     public:
         struct State
         {
             GPUScreen Screen;
             Viewport VP;
             std::shared_ptr<Camera> ActiveCamera;
+            std::shared_ptr<CubeBatchRenderer> CubeBatch;
         };
     };
 }
