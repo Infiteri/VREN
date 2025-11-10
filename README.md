@@ -1,6 +1,6 @@
 # VREN - Vanea's Renderer 
 
-VREN is a simple (yet meant to be powerful) library / framework that renders stuff to the screen using OpenGL
+VREN is a simple library / framework that renders stuff to the screen using OpenGL
 
 The goal for this project is to be used in other projects as I would really love to (in the future) build any kind of physics simulation and I don't want the rendering side of things to be a limitation
 

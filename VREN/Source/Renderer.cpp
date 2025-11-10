@@ -1,6 +1,7 @@
 #include "Renderer.h"
 #include "Core/Logger.h"
 #include "Shader.h"
+#include "Mesh.h"
 #include "Camera/PerspectiveCamera.h"
 #include <glad/glad.h>
 
@@ -9,6 +10,7 @@ namespace VREN
     static Renderer::State state;
     static std::shared_ptr<Shader> TestShader;
     static std::shared_ptr<VertexArray> TestVAO;
+    static Mesh mesh;
 
     void Renderer::Init()
     {
@@ -22,54 +24,7 @@ namespace VREN
 
         TestShader = std::make_shared<Shader>("Assets/Obj.glsl");
 
-        float vertices[] = {
-            -0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, -0.5f,
-            0.5f, 0.5f, -0.5f,
-            0.5f, 0.5f, -0.5f,
-            -0.5f, 0.5f, -0.5f,
-            -0.5f, -0.5f, -0.5f,
-
-            -0.5f, -0.5f, 0.5f,
-            0.5f, -0.5f, 0.5f,
-            0.5f, 0.5f, 0.5f,
-            0.5f, 0.5f, 0.5f,
-            -0.5f, 0.5f, 0.5f,
-            -0.5f, -0.5f, 0.5f,
-
-            -0.5f, 0.5f, 0.5f,
-            -0.5f, 0.5f, -0.5f,
-            -0.5f, -0.5f, -0.5f,
-            -0.5f, -0.5f, -0.5f,
-            -0.5f, -0.5f, 0.5f,
-            -0.5f, 0.5f, 0.5f,
-
-            0.5f, 0.5f, 0.5f,
-            0.5f, 0.5f, -0.5f,
-            0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, 0.5f,
-            0.5f, 0.5f, 0.5f,
-
-            -0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, 0.5f,
-            0.5f, -0.5f, 0.5f,
-            -0.5f, -0.5f, 0.5f,
-            -0.5f, -0.5f, -0.5f,
-
-            -0.5f, 0.5f, -0.5f,
-            0.5f, 0.5f, -0.5f,
-            0.5f, 0.5f, 0.5f,
-            0.5f, 0.5f, 0.5f,
-            -0.5f, 0.5f, 0.5f,
-            -0.5f, 0.5f, -0.5f};
-
-        TestVAO = std::make_shared<VertexArray>();
-        TestVAO->GenerateVertexBuffer(vertices, sizeof(vertices));
-        auto vbo = TestVAO->GetVertexBuffer();
-        vbo->AddLayout(0, 0, 3);
-        vbo->Bind();
+        mesh.Init();
 
         glEnable(GL_DEPTH_TEST);
         ResizeViewport(1280, 720);
@@ -91,9 +46,7 @@ namespace VREN
             TestShader->Mat4(state.ActiveCamera->GetView(), "uView");
         }
 
-        TestVAO->Bind();
-        TestVAO->GetVertexBuffer()->Bind();
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        mesh.Render();
     }
 
     void Renderer::EndFrame()
