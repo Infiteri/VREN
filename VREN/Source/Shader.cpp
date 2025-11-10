@@ -150,6 +150,10 @@ namespace VREN
         if (it != uniforms.end())
             return it->second;
 
+        u32 loc = glGetUniformLocation(id, name);
+        if (loc)
+            return loc;
+
         VREN_LOG(Error, "Uniform not found: %s", name);
         return 0;
     }

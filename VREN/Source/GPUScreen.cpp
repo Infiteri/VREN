@@ -20,7 +20,7 @@ namespace VREN
 
         // shader
         {
-            ScreenShader = std::make_shared<Shader>("Screen.glsl");
+            ScreenShader = std::make_shared<Shader>("Assets/Screen.glsl");
         }
 
         // buffer

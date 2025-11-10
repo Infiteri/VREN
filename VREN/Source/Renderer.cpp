@@ -20,7 +20,7 @@ namespace VREN
         conf.Height = 720;
         state.Screen.Init(conf);
 
-        TestShader = std::make_shared<Shader>("Obj.glsl");
+        TestShader = std::make_shared<Shader>("Assets/Obj.glsl");
 
         float vertices[] = {
             -0.5f, -0.5f, -0.5f,
