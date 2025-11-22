@@ -4,18 +4,11 @@
 
 namespace VREN
 {
-    Mesh::Mesh()
-    {
-    }
+    Mesh::Mesh() {}
 
-    Mesh::~Mesh()
-    {
-    }
+    Mesh::~Mesh() {}
 
-    void Mesh::Init()
-    {
-        DestroyAndInitArray();
-    }
+    void Mesh::Init() { DestroyAndInitArray(); }
 
     void Mesh::Render()
     {
@@ -30,8 +23,8 @@ namespace VREN
     void Mesh::DestroyAndInitArray()
     {
         BoxGeometry box{1, 2, 1};
-        auto& Vertices = box.Vertices;
-        auto&  Indices = box.Indices;
+        auto &Vertices = box.Vertices;
+        auto &Indices = box.Indices;
 
         if (array)
             array.reset();
@@ -46,4 +39,4 @@ namespace VREN
         vbo->Bind();
     }
 
-}
+} // namespace VREN

@@ -1,18 +1,26 @@
-#include <GLFW/glfw3.h>
-#include "Renderer.h"
 #include "Camera/PerspectiveCamera.h"
+#include "Color.h"
 #include "Core/Logger.h"
+#include "Math/Transform.h"
+#include "Math/Vector.h"
+#include "Mesh.h"
+#include "Renderer.h"
+#include <GLFW/glfw3.h>
+#include <cstdlib>
+#include <ctime>
 #include <memory>
+#include <vector>
 
 std::shared_ptr<VREN::PerspectiveCamera> camera = std::make_shared<VREN::PerspectiveCamera>();
+
+static std::vector<VREN::Vector3> positions;
+static std::vector<VREN::Color> colors;
+static int cubes = 30000;
 
 // Track key states
 bool keys[1024] = {false};
 
-static void OnResize(GLFWwindow *_, int w, int h)
-{
-    VREN::Renderer::ResizeViewport(w, h);
-}
+static void OnResize(GLFWwindow *_, int w, int h) { VREN::Renderer::ResizeViewport(w, h); }
 
 static void OnKeyCallback(GLFWwindow *_, int key, int scancode, int action, int mods)
 {
@@ -62,6 +70,7 @@ struct Window
             glfwTerminate();
             return;
         }
+        glfwSwapInterval(1);
 
         glfwSetWindowSizeCallback(handle, OnResize);
         glfwSetKeyCallback(handle, OnKeyCallback);
@@ -69,10 +78,7 @@ struct Window
         glfwMakeContextCurrent(handle);
     }
 
-    bool ShouldClose()
-    {
-        return glfwWindowShouldClose(handle);
-    }
+    bool ShouldClose() { return glfwWindowShouldClose(handle); }
 
     void Update()
     {
@@ -98,6 +104,20 @@ int main()
     VREN::Renderer::ResizeViewport(window.Width, window.Height);
     VREN::Renderer::SetActiveCamera(camera);
 
+    positions.resize(cubes);
+    colors.resize(cubes);
+
+    std::srand((unsigned int)std::time(nullptr));
+
+    for (int i = 0; i < cubes; i++)
+    {
+        positions[i] = {(std::rand() % 4000 - 2000) / 100.0f, (std::rand() % 4000 - 2000) / 100.0f,
+                        (std::rand() % 4000 - 2000) / 100.0f};
+
+        colors[i] = VREN::Color(float(std::rand() % 256), float(std::rand() % 256),
+                                float(std::rand() % 256), 255.0f);
+    }
+
     double lastTime = glfwGetTime();
 
     while (!window.ShouldClose())
@@ -113,6 +133,12 @@ int main()
         VREN::Renderer::BeginFrame();
         VREN::Renderer::ClearScreen(255, 255, 255, 255);
         VREN::Renderer::Render();
+
+        for (int i = 0; i < cubes; i++)
+        {
+            VREN::Renderer::SubmitCube(VREN::Transform({.Position = positions[i]}), colors[i]);
+        }
+
         VREN::Renderer::EndFrame();
     }
 

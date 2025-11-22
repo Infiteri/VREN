@@ -1,8 +1,10 @@
 #pragma once
 
+#include "Base.h"
+
 namespace VREN
 {
-    class Vector2
+    class VREN_API Vector2
     {
     public:
         float x, y;
@@ -29,7 +31,7 @@ namespace VREN
         void Set(float x, float y);
     };
 
-    class Vector3
+    class VREN_API Vector3
     {
     public:
         float x, y, z;
@@ -74,4 +76,4 @@ namespace VREN
         void Set(float x, float y, float z);
     };
 
-} // namespace Core
+} // namespace VREN

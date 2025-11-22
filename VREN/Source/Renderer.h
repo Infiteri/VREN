@@ -1,8 +1,11 @@
 #pragma once
 
 #include "Base.h"
+#include "Batch/BatchRenderer.h"
 #include "Camera/Camera.h"
+#include "Color.h"
 #include "GPUScreen.h"
+#include "Math/Transform.h"
 
 namespace VREN
 {
@@ -29,12 +32,17 @@ namespace VREN
 
         static void SetActiveCamera(std::shared_ptr<Camera> camera);
 
+        static void SubmitCube(const Transform &t, const Color &c);
+
     public:
         struct State
         {
             GPUScreen Screen;
             Viewport VP;
             std::shared_ptr<Camera> ActiveCamera;
+            std::shared_ptr<Shader> ObjectShader, BatchShader;
+
+            CubeBatchRenderer CubeRenderer;
         };
     };
-}
+} // namespace VREN

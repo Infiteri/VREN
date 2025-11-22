@@ -35,4 +35,4 @@ namespace VREN
         this->y = y;
         this->z = z;
     }
-} // namespace Core
+} // namespace VREN

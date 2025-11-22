@@ -1,16 +1,17 @@
 #include "Renderer.h"
-#include "Core/Logger.h"
-#include "Shader.h"
-#include "Mesh.h"
 #include "Camera/PerspectiveCamera.h"
+#include "Core/Logger.h"
+#include "Math/Transform.h"
+#include "Mesh.h"
+#include "Shader.h"
+#include <cstdlib>
+#include <ctime>
 #include <glad/glad.h>
+#include <memory>
 
 namespace VREN
 {
     static Renderer::State state;
-    static std::shared_ptr<Shader> TestShader;
-    static std::shared_ptr<VertexArray> TestVAO;
-    static Mesh mesh;
 
     void Renderer::Init()
     {
@@ -22,35 +23,39 @@ namespace VREN
         conf.Height = 720;
         state.Screen.Init(conf);
 
-        TestShader = std::make_shared<Shader>("Assets/Obj.glsl");
-
-        mesh.Init();
+        state.ObjectShader = std::make_shared<Shader>("Assets/Obj.glsl");
+        state.BatchShader = std::make_shared<Shader>("Assets/BatchShader.glsl");
 
         glEnable(GL_DEPTH_TEST);
         ResizeViewport(1280, 720);
-        VREN_LOG(Info, "Renderer initialized (Cube).");
+
+        state.CubeRenderer.Init();
+
+        VREN_LOG(Info, "Renderer initialized.");
     }
 
     void Renderer::BeginFrame()
     {
         state.Screen.Begin();
+
+        state.CubeRenderer.Begin();
     }
 
     void Renderer::Render()
     {
-        TestShader->Use();
+        state.ObjectShader->Use();
 
         if (state.ActiveCamera)
         {
-            TestShader->Mat4(state.ActiveCamera->GetProjection(), "uProj");
-            TestShader->Mat4(state.ActiveCamera->GetView(), "uView");
+            state.ObjectShader->Mat4(state.ActiveCamera->GetProjection(), "uProj");
+            state.ObjectShader->Mat4(state.ActiveCamera->GetView(), "uView");
         }
-
-        mesh.Render();
     }
 
     void Renderer::EndFrame()
     {
+        state.CubeRenderer.End(std::dynamic_pointer_cast<PerspectiveCamera>(state.ActiveCamera),
+                               state.BatchShader);
         state.Screen.End();
 
         FBRenderPass *pass = state.Screen.Buffer->GetRenderPass(0);
@@ -74,10 +79,7 @@ namespace VREN
         glViewport(0, 0, newWidth, newHeight);
     }
 
-    const Viewport &Renderer::GetViewport()
-    {
-        return state.VP;
-    }
+    const Viewport &Renderer::GetViewport() { return state.VP; }
 
     void Renderer::ClearScreen(float r, float g, float b, float a)
     {
@@ -85,8 +87,10 @@ namespace VREN
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    void Renderer::SetActiveCamera(std::shared_ptr<Camera> camera)
+    void Renderer::SetActiveCamera(std::shared_ptr<Camera> camera) { state.ActiveCamera = camera; }
+
+    void Renderer::SubmitCube(const Transform &t, const Color &c)
     {
-        state.ActiveCamera = camera;
+        state.CubeRenderer.Submit(t, c);
     }
-}
+} // namespace VREN
