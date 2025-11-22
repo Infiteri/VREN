@@ -24,6 +24,8 @@ namespace VREN
         static void Render();
         static void EndFrame();
 
+        static std::shared_ptr<Shader> GetObjectShader();
+
         static void ResizeViewport(float newWidth, float newHeight);
         static const Viewport &GetViewport();
 

@@ -1,25 +1,16 @@
 #include "Shader.h"
 #include "Core/Logger.h"
 #include <fstream>
-#include <sstream>
 #include <glad/glad.h>
+#include <sstream>
 
 namespace VREN
 {
-    Shader::Shader()
-    {
-        id = 0;
-    }
+    Shader::Shader() { id = 0; }
 
-    Shader::~Shader()
-    {
-        glDeleteProgram(id);
-    }
+    Shader::~Shader() { glDeleteProgram(id); }
 
-    Shader::Shader(const std::string &filename)
-    {
-        Load(filename);
-    }
+    Shader::Shader(const std::string &filename) { Load(filename); }
 
     Shader::Shader(const std::string &vertexSource, const std::string &fragmentSource)
     {
@@ -60,19 +51,18 @@ namespace VREN
         Compile(vertexSource.c_str(), fragmentSource.c_str());
     }
 
-    void Shader::Use()
-    {
-        glUseProgram(id);
-    }
+    void Shader::Use() { glUseProgram(id); }
 
-    void Shader::Int(int i, const char *name)
-    {
-        glUniform1i(GetUniLoc(name), i);
-    }
+    void Shader::Int(int i, const char *name) { glUniform1i(GetUniLoc(name), i); }
 
     void Shader::Mat4(const Matrix4 &mat, const char *name)
     {
         glUniformMatrix4fv(GetUniLoc(name), 1, GL_FALSE, mat.data);
+    }
+
+    void Shader::Vec4(const Color &color, const char *name)
+    {
+        glUniform4f(GetUniLoc(name), color.r / 255, color.g / 255, color.b / 255, color.a / 255);
     }
 
     // private details
@@ -157,4 +147,4 @@ namespace VREN
         VREN_LOG(Error, "Uniform not found: %s", name);
         return 0;
     }
-}
+} // namespace VREN

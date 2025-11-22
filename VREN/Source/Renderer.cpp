@@ -34,6 +34,8 @@ namespace VREN
         VREN_LOG(Info, "Renderer initialized.");
     }
 
+    std::shared_ptr<Shader> Renderer::GetObjectShader() { return state.ObjectShader; }
+
     void Renderer::BeginFrame()
     {
         state.Screen.Begin();

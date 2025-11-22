@@ -1,10 +1,10 @@
 #include "Camera/PerspectiveCamera.h"
 #include "Color.h"
-#include "Core/Logger.h"
-#include "Math/Transform.h"
+#include "Geometry/Geometry.h"
 #include "Math/Vector.h"
 #include "Mesh.h"
 #include "Renderer.h"
+#include "Window.h"
 #include <GLFW/glfw3.h>
 #include <cstdlib>
 #include <ctime>
@@ -15,7 +15,8 @@ std::shared_ptr<VREN::PerspectiveCamera> camera = std::make_shared<VREN::Perspec
 
 static std::vector<VREN::Vector3> positions;
 static std::vector<VREN::Color> colors;
-static int cubes = 30000;
+static int cubes = 300000;
+static VREN::Mesh mesh;
 
 // Track key states
 bool keys[1024] = {false};
@@ -35,74 +36,44 @@ static void OnKeyCallback(GLFWwindow *_, int key, int scancode, int action, int 
 
 void ProcessInput(float dt)
 {
-    float speed = 2.5f * dt;
+    float speed = 3.5f * dt;
     auto &pos = camera->GetPosition();
 
-    if (keys[GLFW_KEY_W])
-        pos.z -= speed; // forward
-    if (keys[GLFW_KEY_S])
-        pos.z += speed; // backward
-    if (keys[GLFW_KEY_A])
-        pos.x -= speed; // left
-    if (keys[GLFW_KEY_D])
-        pos.x += speed; // right
-    if (keys[GLFW_KEY_SPACE])
-        pos.y += speed; // up
     if (keys[GLFW_KEY_LEFT_SHIFT])
-        pos.y -= speed; // down
+        speed *= 3;
+
+    if (keys[GLFW_KEY_W])
+        pos.z += speed; // forward
+    if (keys[GLFW_KEY_S])
+        pos.z -= speed; // backward
+    if (keys[GLFW_KEY_A])
+        pos.x += speed; // left
+    if (keys[GLFW_KEY_D])
+        pos.x -= speed; // right
+    if (keys[GLFW_KEY_SPACE])
+        pos.y -= speed; // up
+    if (keys[GLFW_KEY_LEFT_CONTROL])
+        pos.y += speed; // down
 
     camera->UpdateView();
 }
-
-struct Window
-{
-    GLFWwindow *handle;
-    int Width, Height;
-
-    void Init(int width, int height, const char *title)
-    {
-        if (!glfwInit())
-            return;
-
-        handle = glfwCreateWindow(width, height, title, 0, 0);
-        if (!handle)
-        {
-            glfwTerminate();
-            return;
-        }
-        glfwSwapInterval(1);
-
-        glfwSetWindowSizeCallback(handle, OnResize);
-        glfwSetKeyCallback(handle, OnKeyCallback);
-
-        glfwMakeContextCurrent(handle);
-    }
-
-    bool ShouldClose() { return glfwWindowShouldClose(handle); }
-
-    void Update()
-    {
-        glfwSwapBuffers(handle);
-        glfwPollEvents();
-        glfwGetWindowSize(handle, &Width, &Height);
-    }
-
-    void Shutdown()
-    {
-        glfwDestroyWindow(handle);
-        glfwTerminate();
-    }
-};
 
 int main()
 {
     Window window;
     window.Init(1920, 1080, "My Window");
 
+    glfwSetWindowSizeCallback(window.handle, OnResize);
+    glfwSetKeyCallback(window.handle, OnKeyCallback);
+
     VREN::Renderer::Init();
     window.Update();
     VREN::Renderer::ResizeViewport(window.Width, window.Height);
     VREN::Renderer::SetActiveCamera(camera);
+
+    mesh.Init();
+    mesh.SetGeometry(std::make_shared<VREN::BoxGeometry>(1, 1, 1));
+    mesh.GetMaterial().SetColor({0, 125, 255, 255});
 
     positions.resize(cubes);
     colors.resize(cubes);
@@ -134,10 +105,12 @@ int main()
         VREN::Renderer::ClearScreen(255, 255, 255, 255);
         VREN::Renderer::Render();
 
-        for (int i = 0; i < cubes; i++)
-        {
-            VREN::Renderer::SubmitCube(VREN::Transform({.Position = positions[i]}), colors[i]);
-        }
+        // for (int i = 0; i < cubes; i++)
+        // {
+        //     VREN::Renderer::SubmitCube(VREN::Transform({.Position = positions[i]}), colors[i]);
+        // }
+
+        mesh.Render();
 
         VREN::Renderer::EndFrame();
     }

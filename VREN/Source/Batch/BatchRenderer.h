@@ -20,7 +20,7 @@ namespace VREN
     class BatchRenderer
     {
     public:
-        static const int MaxInstances = 10000;
+        static const int MaxInstances = 10001;
 
         void Begin();
         void Submit(const Transform &t, const Color &color);

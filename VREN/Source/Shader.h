@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Base.h"
+#include "Color.h"
 #include "Math/Matrix.h"
 #include <string>
 #include <unordered_map>
@@ -21,8 +22,9 @@ namespace VREN
         void Use();
 
         // uniforms
-        void Int(int i, const char* name);
+        void Int(int i, const char *name);
         void Mat4(const Matrix4 &mat, const char *name);
+        void Vec4(const Color &color, const char *name);
 
         inline u32 GetID() const { return id; };
 
@@ -34,6 +36,6 @@ namespace VREN
         void LoadUniforms();
         void Compile(const char *vertSrc, const char *fragSource);
         u32 CompileShader(u32 type, const char *src);
-        u32 GetUniLoc(const char* name);
+        u32 GetUniLoc(const char *name);
     };
-}
+} // namespace VREN

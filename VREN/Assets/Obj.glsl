@@ -12,8 +12,10 @@ void main() {
 // FRAGMENT
 #version 330 core
 
+uniform vec4 uColor;
+
 out vec4 oColor;
 
 void main() {
-    oColor = vec4(0.5,0.5,0.5, 1);
+    oColor = uColor;
 }
