@@ -1,3 +1,4 @@
+#include "Camera/OrthographicCamera.h"
 #include "Camera/PerspectiveCamera.h"
 #include "Color.h"
 #include "Geometry/Geometry.h"
@@ -12,7 +13,8 @@
 #include <memory>
 #include <vector>
 
-std::shared_ptr<VREN::PerspectiveCamera> camera = std::make_shared<VREN::PerspectiveCamera>();
+std::shared_ptr<VREN::OrthographicCamera> camera =
+    std::make_shared<VREN::OrthographicCamera>(1280, 720);
 
 static std::vector<VREN::Vector3> positions;
 static std::vector<VREN::Color> colors;
@@ -37,11 +39,11 @@ static void OnKeyCallback(GLFWwindow *_, int key, int scancode, int action, int 
 
 void ProcessInput(float dt)
 {
-    float speed = 3.5f * dt;
+    float speed = 30.5f * dt;
     auto &pos = camera->GetPosition();
 
     if (keys[GLFW_KEY_LEFT_SHIFT])
-        speed *= 3;
+        speed *= 30;
 
     if (keys[GLFW_KEY_W])
         pos.z += speed; // forward
@@ -69,11 +71,12 @@ int main()
 
     VREN::Renderer::Init();
     window.Update();
-    VREN::Renderer::ResizeViewport(window.Width, window.Height);
     VREN::Renderer::SetActiveCamera(camera);
+    VREN::Renderer::ResizeViewport(window.Width, window.Height);
 
     mesh.Init();
-    mesh.SetGeometry(std::make_shared<VREN::BoxGeometry>(1, 1, 1));
+    mesh.GetTrasnform().Position.z = -5;
+    mesh.SetGeometry(std::make_shared<VREN::BoxGeometry>(100, 100, 1));
     mesh.GetMaterial().SetColor({255, 255, 255, 255});
 
     u8 pixels[] = {0, 125, 0, 255};

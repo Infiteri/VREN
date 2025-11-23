@@ -48,6 +48,25 @@ namespace VREN
         return m;
     }
 
+    Matrix4 Matrix4::Ortho(float left, float right, float top, float bottom, float near, float far)
+    {
+        Matrix4 m;
+
+        float lr = 1.0f / (right - left);
+        float bt = 1.0f / (top - bottom);
+        float nf = 1.0f / (near - far);
+
+        m.data[0] = 2.0f * lr;
+        m.data[5] = 2.0f * bt;
+        m.data[10] = 2.0f * nf;
+
+        m.data[12] = -(right + left) * lr;
+        m.data[13] = -(top + bottom) * bt;
+        m.data[14] = (far + near) * nf;
+
+        return m;
+    }
+
     Matrix4 Matrix4::Multiply(const Matrix4 &a, const Matrix4 &b)
     {
         Matrix4 m;
@@ -236,4 +255,4 @@ namespace VREN
 
         return m;
     }
-} // namespace Core
+} // namespace VREN

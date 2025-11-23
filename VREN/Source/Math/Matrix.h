@@ -22,6 +22,8 @@ namespace VREN
         const float *operator[](int row) const { return m[row]; }
 
         static Matrix4 Perspective(float fov, float aspect, float near, float far);
+        static Matrix4 Ortho(float left, float right, float top, float bottom, float near,
+                             float far);
         static Matrix4 Multiply(const Matrix4 &a, const Matrix4 &b);
         static Matrix4 Invert(const Matrix4 &a);
 
@@ -35,4 +37,4 @@ namespace VREN
         static Matrix4 RotateXYZ(const Vector3 &vec);
         static Matrix4 RotateZYX(const Vector3 &vec);
     };
-} // namespace Core
+} // namespace VREN

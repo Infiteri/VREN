@@ -1,5 +1,6 @@
 
 #pragma once
+#include "Camera/Camera.h"
 #include "Color.h"
 #include "Math/Matrix.h"
 #include <memory>
@@ -24,7 +25,7 @@ namespace VREN
 
         void Begin();
         void Submit(const Transform &t, const Color &color);
-        void End(std::shared_ptr<PerspectiveCamera> cam, std::shared_ptr<Shader> shader);
+        void End(std::shared_ptr<Camera> cam, std::shared_ptr<Shader> shader);
         void Shutdown();
 
     protected:

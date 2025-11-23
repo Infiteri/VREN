@@ -59,8 +59,7 @@ namespace VREN
 
     void Renderer::EndFrame()
     {
-        state.CubeRenderer.End(std::dynamic_pointer_cast<PerspectiveCamera>(state.ActiveCamera),
-                               state.BatchShader);
+        state.CubeRenderer.End(state.ActiveCamera, state.BatchShader);
         state.Screen.End();
 
         FBRenderPass *pass = state.Screen.Buffer->GetRenderPass(0);

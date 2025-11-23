@@ -23,7 +23,7 @@ namespace VREN
         inst.color[3] = c.a / 255.0f;
     }
 
-    void BatchRenderer::End(std::shared_ptr<PerspectiveCamera> cam, std::shared_ptr<Shader> shader)
+    void BatchRenderer::End(std::shared_ptr<Camera> cam, std::shared_ptr<Shader> shader)
     {
         if (instanceCount == 0)
             return;
