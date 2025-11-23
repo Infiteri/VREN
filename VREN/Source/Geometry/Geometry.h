@@ -15,7 +15,8 @@ namespace VREN
     enum class GeometryType
     {
         None = 0,
-        Box
+        Box,
+        Plane
     };
 
     class VREN_API Geometry
@@ -39,5 +40,13 @@ namespace VREN
     public:
         float Width, Height, Depth;
         BoxGeometry(float w, float h, float d);
+    };
+
+    class VREN_API PlaneGeometry : public Geometry
+    {
+    public:
+        float Width, Height;
+
+        PlaneGeometry(float w, float h);
     };
 } // namespace VREN

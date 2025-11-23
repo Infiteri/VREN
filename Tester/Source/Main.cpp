@@ -1,24 +1,25 @@
 #include "Camera/OrthographicCamera.h"
 #include "Camera/PerspectiveCamera.h"
 #include "Color.h"
+#include "GUI.h"
 #include "Geometry/Geometry.h"
 #include "Math/Vector.h"
 #include "Mesh.h"
 #include "Renderer.h"
 #include "Texture.h"
 #include "Window.h"
+#include "imgui.h"
 #include <GLFW/glfw3.h>
 #include <cstdlib>
 #include <ctime>
 #include <memory>
 #include <vector>
 
+float width = 200, height = 200;
+
 std::shared_ptr<VREN::OrthographicCamera> camera =
     std::make_shared<VREN::OrthographicCamera>(1280, 720);
 
-static std::vector<VREN::Vector3> positions;
-static std::vector<VREN::Color> colors;
-static int cubes = 300000;
 static VREN::Mesh mesh;
 
 // Track key states
@@ -76,28 +77,15 @@ int main()
 
     mesh.Init();
     mesh.GetTrasnform().Position.z = -5;
-    mesh.SetGeometry(std::make_shared<VREN::BoxGeometry>(100, 100, 1));
+    mesh.SetGeometry(std::make_shared<VREN::PlaneGeometry>(250, 250));
     mesh.GetMaterial().SetColor({255, 255, 255, 255});
 
-    u8 pixels[] = {0, 125, 0, 255};
     mesh.GetMaterial().SetColorTextureHandle(
         VREN::Texture::CreateTexture2DHandle("Assets/negx.jpg"));
 
-    positions.resize(cubes);
-    colors.resize(cubes);
-
-    std::srand((unsigned int)std::time(nullptr));
-
-    for (int i = 0; i < cubes; i++)
-    {
-        positions[i] = {(std::rand() % 4000 - 2000) / 100.0f, (std::rand() % 4000 - 2000) / 100.0f,
-                        (std::rand() % 4000 - 2000) / 100.0f};
-
-        colors[i] = VREN::Color(float(std::rand() % 256), float(std::rand() % 256),
-                                float(std::rand() % 256), 255.0f);
-    }
-
     double lastTime = glfwGetTime();
+
+    ImGuiInit(&window);
 
     while (!window.ShouldClose())
     {
@@ -114,6 +102,20 @@ int main()
         VREN::Renderer::Render();
 
         mesh.Render();
+
+        ImGuiBegin();
+        ImGui::Begin("A");
+
+        bool changeW = ImGui::DragFloat("W", &width, 0.01, 0.0);
+        bool changeH = ImGui::DragFloat("H", &height, 0.01, 0.0);
+
+        if (changeW || changeH)
+        {
+            mesh.SetGeometry(std::make_shared<VREN::PlaneGeometry>(width, height));
+        }
+
+        ImGui::End();
+        ImGuiEnd();
 
         VREN::Renderer::EndFrame();
     }

@@ -15,7 +15,7 @@ scaffold:
 
 $(BIN_OBJ)/$(CUR_DIR)/$(SRC_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
-	g++ -c -g $< -o $@ -ISource -IVendor/GLFW/include -I$(VREN_INCL)
+	g++ -c -g $< -o $@ -ISource -IVendor/GLFW/include -IVendor/ImGui -IVendor/ImGui/backends -I$(VREN_INCL) 
 
 link:
-	@g++ -o $(TARGET) $(OBJ_FILES) -L$(BIN) -lvren -lglfw3
+	@g++ -o $(TARGET) $(OBJ_FILES) -L$(BIN) -lvren -lglfw3 -lImGui

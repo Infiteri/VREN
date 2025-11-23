@@ -87,4 +87,36 @@ namespace VREN
             Indices[i_offset + 5] = v_offset + 3;
         }
     }
+
+    PlaneGeometry::PlaneGeometry(float w, float h)
+    {
+        Width = w;
+        Height = h;
+        type = GeometryType::Plane;
+
+        Vertices.resize(4);
+        Indices.resize(6);
+
+        float min_x = -Width * 0.5f;
+        float max_x = Width * 0.5f;
+        float min_y = -Height * 0.5f;
+        float max_y = Height * 0.5f;
+
+        Vertices[0].Position = {min_x, min_y, 0.0f};
+        Vertices[1].Position = {max_x, min_y, 0.0f};
+        Vertices[2].Position = {max_x, max_y, 0.0f};
+        Vertices[3].Position = {min_x, max_y, 0.0f};
+
+        Vertices[0].UV.Set(0.0f, 0.0f);
+        Vertices[1].UV.Set(1.0f, 0.0f);
+        Vertices[2].UV.Set(1.0f, 1.0f);
+        Vertices[3].UV.Set(0.0f, 1.0f);
+
+        Indices[0] = 0;
+        Indices[1] = 1;
+        Indices[2] = 2;
+        Indices[3] = 0;
+        Indices[4] = 2;
+        Indices[5] = 3;
+    }
 } // namespace VREN
