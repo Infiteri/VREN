@@ -9,6 +9,7 @@ namespace VREN
     struct Vertex3D
     {
         Vector3 Position;
+        Vector2 UV;
     };
 
     enum class GeometryType
@@ -39,4 +40,4 @@ namespace VREN
         float Width, Height, Depth;
         BoxGeometry(float w, float h, float d);
     };
-}
+} // namespace VREN

@@ -4,6 +4,8 @@
 #include "Buffer/VertexArray.h"
 #include "Geometry/Geometry.h"
 #include "Material.h"
+#include "Math/Transform.h"
+#include "Texture.h"
 #include <memory>
 
 namespace VREN
@@ -21,11 +23,13 @@ namespace VREN
         void SetMaterial(const Material &mat);
 
         inline Material &GetMaterial() { return material; };
+        inline Transform &GetTrasnform() { return transform; };
 
     private:
         std::unique_ptr<VertexArray> array;
         std::shared_ptr<Geometry> geometry;
         Material material;
+        Transform transform;
 
     private:
         void DestroyAndInitArray();

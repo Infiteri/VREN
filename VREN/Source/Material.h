@@ -3,6 +3,7 @@
 #include "Base.h"
 #include "Color.h"
 #include "Shader.h"
+#include "Texture.h"
 #include <memory>
 
 namespace VREN
@@ -15,11 +16,14 @@ namespace VREN
 
         void Use(std::shared_ptr<Shader> shader);
 
-        inline Color &GetColor() { return color; };
-
         void SetColor(const Color &c);
+        void SetColorTextureHandle(const TextureHandle &handle);
+
+        inline Color &GetColor() { return color; };
+        inline TextureHandle &GetColorTextureHandle() { return colorTexture; };
 
     private:
         Color color;
+        TextureHandle colorTexture;
     };
 } // namespace VREN

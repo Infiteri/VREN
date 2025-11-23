@@ -2,10 +2,8 @@
 #include "Camera/PerspectiveCamera.h"
 #include "Core/Logger.h"
 #include "Math/Transform.h"
-#include "Mesh.h"
 #include "Shader.h"
-#include <cstdlib>
-#include <ctime>
+#include "Texture.h"
 #include <glad/glad.h>
 #include <memory>
 
@@ -30,6 +28,11 @@ namespace VREN
         ResizeViewport(1280, 720);
 
         state.CubeRenderer.Init();
+
+        {
+            u8 pixels[] = {255, 255, 255, 255};
+            state.DefaultTexture2D = Texture::CreateTexture2DHandle(1, 1, pixels);
+        }
 
         VREN_LOG(Info, "Renderer initialized.");
     }
@@ -95,4 +98,6 @@ namespace VREN
     {
         state.CubeRenderer.Submit(t, c);
     }
+
+    TextureHandle Renderer::GetDefaultTexture2DHandle() { return state.DefaultTexture2D; }
 } // namespace VREN

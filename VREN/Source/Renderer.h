@@ -6,6 +6,7 @@
 #include "Color.h"
 #include "GPUScreen.h"
 #include "Math/Transform.h"
+#include "Texture.h"
 
 namespace VREN
 {
@@ -36,15 +37,20 @@ namespace VREN
 
         static void SubmitCube(const Transform &t, const Color &c);
 
+        static TextureHandle GetDefaultTexture2DHandle();
+
     public:
         struct State
         {
             GPUScreen Screen;
             Viewport VP;
+
             std::shared_ptr<Camera> ActiveCamera;
             std::shared_ptr<Shader> ObjectShader, BatchShader;
 
             CubeBatchRenderer CubeRenderer;
+
+            TextureHandle DefaultTexture2D;
         };
     };
 } // namespace VREN

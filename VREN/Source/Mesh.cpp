@@ -33,6 +33,7 @@ namespace VREN
         if (!array)
             return;
 
+        Renderer::GetObjectShader()->Mat4(transform.GetMatrix(), "uTransform");
         material.Use(Renderer::GetObjectShader());
         array->Bind();
         array->GetVertexBuffer()->Bind();
@@ -60,6 +61,7 @@ namespace VREN
 
         auto vbo = array->GetVertexBuffer();
         vbo->AddLayout(0, 0, 3);
+        vbo->AddLayout(1, 3, 2);
         vbo->Bind();
     }
 

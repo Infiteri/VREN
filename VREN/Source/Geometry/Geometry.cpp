@@ -30,10 +30,10 @@ namespace VREN
             Vertices[i + 2].Position = v2;
             Vertices[i + 3].Position = v3;
 
-            // Vertices[i + 0].UV.Set(UV0, UV0);
-            // Vertices[i + 1].UV.Set(UV1, UV0);
-            // Vertices[i + 2].UV.Set(UV1, UV1);
-            // Vertices[i + 3].UV.Set(UV0, UV1);
+            Vertices[i + 0].UV.Set(UV0, UV0);
+            Vertices[i + 1].UV.Set(UV1, UV0);
+            Vertices[i + 2].UV.Set(UV1, UV1);
+            Vertices[i + 3].UV.Set(UV0, UV1);
 
             // Vertices[i + 0].Normal = normal;
             // Vertices[i + 1].Normal = normal;
@@ -87,4 +87,4 @@ namespace VREN
             Indices[i_offset + 5] = v_offset + 3;
         }
     }
-}
+} // namespace VREN

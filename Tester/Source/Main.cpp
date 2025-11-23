@@ -4,6 +4,7 @@
 #include "Math/Vector.h"
 #include "Mesh.h"
 #include "Renderer.h"
+#include "Texture.h"
 #include "Window.h"
 #include <GLFW/glfw3.h>
 #include <cstdlib>
@@ -73,7 +74,11 @@ int main()
 
     mesh.Init();
     mesh.SetGeometry(std::make_shared<VREN::BoxGeometry>(1, 1, 1));
-    mesh.GetMaterial().SetColor({0, 125, 255, 255});
+    mesh.GetMaterial().SetColor({255, 255, 255, 255});
+
+    u8 pixels[] = {0, 125, 0, 255};
+    mesh.GetMaterial().SetColorTextureHandle(
+        VREN::Texture::CreateTexture2DHandle("Assets/negx.jpg"));
 
     positions.resize(cubes);
     colors.resize(cubes);
@@ -104,11 +109,6 @@ int main()
         VREN::Renderer::BeginFrame();
         VREN::Renderer::ClearScreen(255, 255, 255, 255);
         VREN::Renderer::Render();
-
-        // for (int i = 0; i < cubes; i++)
-        // {
-        //     VREN::Renderer::SubmitCube(VREN::Transform({.Position = positions[i]}), colors[i]);
-        // }
 
         mesh.Render();
 

@@ -18,7 +18,7 @@ scaffold:
 
 $(BIN_OBJ)/$(CUR_DIR)/$(SRC_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
-	g++ -std=c++2a -c -g $< -o $@ -ISource -IVendor/glad/include
+	g++ -std=c++2a -c -g $< -o $@ -ISource -IVendor/glad/include -IVendor/stb
 
 link:
 	@g++ -o $(TARGET_LIB) $(OBJ_FILES) -L$(BIN) -shared -lglad
