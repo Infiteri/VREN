@@ -6,7 +6,9 @@
 #include "Color.h"
 #include "GPUScreen.h"
 #include "Math/Transform.h"
+#include "Math/Vector.h"
 #include "Texture.h"
+#include <vector>
 
 namespace VREN
 {
@@ -35,7 +37,9 @@ namespace VREN
 
         static void SetActiveCamera(std::shared_ptr<Camera> camera);
 
-        static void SubmitCube(const Transform &t, const Color &c);
+        static void SubmitCube(const Transform &t, const Color &c, const Vector3 &size = {1, 1, 1});
+        static void SubmitPlane(const Transform &t, const Color &c,
+                                const Vector2 &size = {100, 100});
 
         static TextureHandle GetDefaultTexture2DHandle();
 
@@ -48,7 +52,7 @@ namespace VREN
             std::shared_ptr<Camera> ActiveCamera;
             std::shared_ptr<Shader> ObjectShader, BatchShader;
 
-            CubeBatchRenderer CubeRenderer;
+            std::vector<std::unique_ptr<BatchRenderer>> Batches;
 
             TextureHandle DefaultTexture2D;
         };

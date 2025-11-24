@@ -10,10 +10,7 @@
 #include "Window.h"
 #include "imgui.h"
 #include <GLFW/glfw3.h>
-#include <cstdlib>
-#include <ctime>
 #include <memory>
-#include <vector>
 
 float width = 200, height = 200;
 
@@ -102,6 +99,8 @@ int main()
         VREN::Renderer::Render();
 
         mesh.Render();
+
+        VREN::Renderer::SubmitPlane({.Position{-500, 0, 0}}, {255, 0, 0, 255}, {500, 50});
 
         ImGuiBegin();
         ImGui::Begin("A");

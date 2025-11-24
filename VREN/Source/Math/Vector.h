@@ -73,6 +73,13 @@ namespace VREN
 
         bool operator!=(const Vector3 &other) const { return !(*this == other); }
 
+        void operator*=(const Vector3 &other)
+        {
+            this->x *= other.x;
+            this->y *= other.y;
+            this->z *= other.z;
+        }
+
         void Set(float x, float y, float z);
     };
 

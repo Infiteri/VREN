@@ -1,4 +1,3 @@
-
 #pragma once
 #include "Camera/Camera.h"
 #include "Color.h"
@@ -23,6 +22,8 @@ namespace VREN
     public:
         static const int MaxInstances = 10001;
 
+        virtual void Init() {};
+
         void Begin();
         void Submit(const Transform &t, const Color &color);
         void End(std::shared_ptr<Camera> cam, std::shared_ptr<Shader> shader);
@@ -38,6 +39,12 @@ namespace VREN
     };
 
     class CubeBatchRenderer : public BatchRenderer
+    {
+    public:
+        void Init();
+    };
+
+    class PlaneBatchRenderer : public BatchRenderer
     {
     public:
         void Init();

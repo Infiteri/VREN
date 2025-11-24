@@ -87,4 +87,41 @@ namespace VREN
 
         glBindVertexArray(0);
     }
+
+    void PlaneBatchRenderer::Init()
+    {
+        float vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f,  -0.5f, 0.0f,
+                            0.5f,  0.5f,  0.0f, -0.5f, 0.5f,  0.0f};
+
+        unsigned int indices[] = {0, 1, 2, 2, 3, 0};
+
+        geometryVAO = std::make_unique<VertexArray>();
+        geometryVAO->Bind();
+
+        geometryVAO->GenerateVertexBuffer(vertices, sizeof(vertices));
+        geometryVAO->GenerateIndexBuffer(indices, sizeof(indices));
+
+        geometryVAO->GetVertexBuffer()->AddLayout(0, 0, 3);
+        indexCount = sizeof(indices) / sizeof(unsigned int);
+
+        glGenBuffers(1, &instanceVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+        glBufferData(GL_ARRAY_BUFFER, MaxInstances * sizeof(InstanceData), nullptr,
+                     GL_DYNAMIC_DRAW);
+
+        for (int i = 0; i < 4; i++)
+        {
+            glEnableVertexAttribArray(1 + i);
+            glVertexAttribPointer(1 + i, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData),
+                                  (void *)(sizeof(float) * 4 * i));
+            glVertexAttribDivisor(1 + i, 1);
+        }
+
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData),
+                              (void *)sizeof(Matrix4));
+        glVertexAttribDivisor(5, 1);
+
+        glBindVertexArray(0);
+    }
 } // namespace VREN

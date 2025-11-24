@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "Batch/BatchRenderer.h"
 #include "Camera/PerspectiveCamera.h"
 #include "Core/Logger.h"
 #include "Math/Transform.h"
@@ -6,6 +7,9 @@
 #include "Texture.h"
 #include <glad/glad.h>
 #include <memory>
+
+#define CUBE_BTCH_IDX 0
+#define PLNE_BTCH_IDX 1
 
 namespace VREN
 {
@@ -27,7 +31,15 @@ namespace VREN
         glEnable(GL_DEPTH_TEST);
         ResizeViewport(1280, 720);
 
-        state.CubeRenderer.Init();
+        // setup batch Renderer
+        {
+            state.Batches.resize(2);
+            state.Batches[CUBE_BTCH_IDX] = std::make_unique<CubeBatchRenderer>();
+            state.Batches[PLNE_BTCH_IDX] = std::make_unique<PlaneBatchRenderer>();
+
+            for (auto &b : state.Batches)
+                b->Init();
+        }
 
         {
             u8 pixels[] = {255, 255, 255, 255};
@@ -43,7 +55,8 @@ namespace VREN
     {
         state.Screen.Begin();
 
-        state.CubeRenderer.Begin();
+        for (auto &b : state.Batches)
+            b->Begin();
     }
 
     void Renderer::Render()
@@ -59,7 +72,9 @@ namespace VREN
 
     void Renderer::EndFrame()
     {
-        state.CubeRenderer.End(state.ActiveCamera, state.BatchShader);
+        for (auto &b : state.Batches)
+            b->End(state.ActiveCamera, state.BatchShader);
+
         state.Screen.End();
 
         FBRenderPass *pass = state.Screen.Buffer->GetRenderPass(0);
@@ -93,9 +108,22 @@ namespace VREN
 
     void Renderer::SetActiveCamera(std::shared_ptr<Camera> camera) { state.ActiveCamera = camera; }
 
-    void Renderer::SubmitCube(const Transform &t, const Color &c)
+    void Renderer::SubmitCube(const Transform &t, const Color &c, const Vector3 &size)
     {
-        state.CubeRenderer.Submit(t, c);
+        Transform t2 = t;
+        if (size != Vector3(1, 1, 1))
+            t2.Scale *= size;
+
+        state.Batches[CUBE_BTCH_IDX]->Submit(t2, c);
+    }
+
+    void Renderer::SubmitPlane(const Transform &t, const Color &c, const Vector2 &size)
+    {
+        Transform t2 = t;
+        if (size != Vector2(1, 1))
+            t2.Scale *= Vector3(size.x, size.y, 1);
+
+        state.Batches[PLNE_BTCH_IDX]->Submit(t2, c);
     }
 
     TextureHandle Renderer::GetDefaultTexture2DHandle() { return state.DefaultTexture2D; }
