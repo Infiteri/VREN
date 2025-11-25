@@ -22,7 +22,6 @@ VREN::Color lineColor(255, 0, 0, 255);
 float lineThickness = 5.0f;
 bool lineCentered = false;
 
-// ---- Angle-based line ----
 VREN::Vector2 angledPos(200.0f, 0.0f);
 float angledAngle = 45.0f; // degrees
 float angledLength = 150.0f;
@@ -33,9 +32,9 @@ bool angledCentered = false;
 std::shared_ptr<VREN::OrthographicCamera> camera =
     std::make_shared<VREN::OrthographicCamera>(1280, 720);
 
+static Window window;
 static VREN::Mesh mesh;
 
-// Track key states
 bool keys[1024] = {false};
 
 static void OnResize(GLFWwindow *_, int w, int h) { VREN::Renderer::ResizeViewport(w, h); }
@@ -60,24 +59,23 @@ void ProcessInput(float dt)
         speed *= 30;
 
     if (keys[GLFW_KEY_W])
-        pos.z += speed; // forward
+        pos.z += speed;
     if (keys[GLFW_KEY_S])
-        pos.z -= speed; // backward
+        pos.z -= speed;
     if (keys[GLFW_KEY_A])
-        pos.x += speed; // left
+        pos.x += speed;
     if (keys[GLFW_KEY_D])
-        pos.x -= speed; // right
+        pos.x -= speed;
     if (keys[GLFW_KEY_SPACE])
-        pos.y -= speed; // up
+        pos.y -= speed;
     if (keys[GLFW_KEY_LEFT_CONTROL])
-        pos.y += speed; // down
+        pos.y += speed;
 
     camera->UpdateView();
 }
 
-int main()
+static void InitAll()
 {
-    Window window;
     window.Init(1920, 1080, "My Window");
 
     glfwSetWindowSizeCallback(window.handle, OnResize);
@@ -96,102 +94,111 @@ int main()
     mesh.GetMaterial().SetColorTextureHandle(
         VREN::Texture::CreateTexture2DHandle("Assets/negx.jpg"));
 
-    double lastTime = glfwGetTime();
-
     ImGuiInit(&window);
+}
+
+static void RenderScene()
+{
+    VREN::Renderer::BeginFrame();
+    VREN::Renderer::ClearScreen(255, 255, 255, 255);
+    VREN::Renderer::Render();
+
+    mesh.Render();
+
+    // Normal line
+    VREN::Renderer::SubmitLine(lineStart, lineEnd, lineColor, lineThickness, lineCentered);
+
+    // Angle-based line
+    VREN::Renderer::SubmitLine(angledPos, angledAngle, angledLength, angledColor, angledThickness,
+                               angledCentered);
+}
+
+static void RenderGUI()
+{
+    ImGuiBegin();
+    ImGui::Begin("A");
+
+    bool changeW = ImGui::DragFloat("W", &width, 0.01, 0.0);
+    bool changeH = ImGui::DragFloat("H", &height, 0.01, 0.0);
+
+    if (changeW || changeH)
+    {
+        mesh.SetGeometry(std::make_shared<VREN::PlaneGeometry>(width, height));
+    }
+
+    ImGui::End();
+
+    ImGui::Begin("Line Controls");
+
+    // -----------------------
+    // Line 1
+    // -----------------------
+    ImGui::Text("Line 1 (Start -> End)");
+    ImGui::DragFloat2("Start", &lineStart.x, 0.1f);
+    ImGui::DragFloat2("End", &lineEnd.x, 0.1f);
+
+    ImGui::DragFloat("Thickness", &lineThickness, 0.1f, 0.1f, 500.0f);
+    ImGui::Checkbox("Centered##1", &lineCentered);
+
+    // integer color (convert to/from float)
+    {
+        float col[4] = {lineColor.r / 255.0f, lineColor.g / 255.0f, lineColor.b / 255.0f,
+                        lineColor.a / 255.0f};
+
+        if (ImGui::ColorEdit4("Color##1", col))
+        {
+            lineColor.r = int(col[0] * 255.0f);
+            lineColor.g = int(col[1] * 255.0f);
+            lineColor.b = int(col[2] * 255.0f);
+            lineColor.a = int(col[3] * 255.0f);
+        }
+    }
+
+    ImGui::Separator();
+
+    // -----------------------
+    // Line 2
+    // -----------------------
+    ImGui::Text("Line 2 (Angle + Length)");
+
+    ImGui::DragFloat2("Position##2", &angledPos.x, 0.1f);
+    ImGui::DragFloat("Angle (deg)", &angledAngle, 1.0f);
+    ImGui::DragFloat("Length", &angledLength, 0.5f, 1.0f, 2000.0f);
+
+    ImGui::DragFloat("Thickness##2", &angledThickness, 0.1f, 0.1f, 500.0f);
+    ImGui::Checkbox("Centered##2", &angledCentered);
+
+    // integer color (convert to/from float)
+    {
+        float col2[4] = {angledColor.r / 255.0f, angledColor.g / 255.0f, angledColor.b / 255.0f,
+                         angledColor.a / 255.0f};
+
+        if (ImGui::ColorEdit4("Color##2", col2))
+        {
+            angledColor.r = int(col2[0] * 255.0f);
+            angledColor.g = int(col2[1] * 255.0f);
+            angledColor.b = int(col2[2] * 255.0f);
+            angledColor.a = int(col2[3] * 255.0f);
+        }
+    }
+
+    ImGui::End();
+    ImGuiEnd();
+}
+
+int main()
+{
+    InitAll();
 
     while (!window.ShouldClose())
     {
-        double currentTime = glfwGetTime();
-        float deltaTime = float(currentTime - lastTime);
-        lastTime = currentTime;
-
-        ProcessInput(deltaTime);
-
         window.Update();
 
-        VREN::Renderer::BeginFrame();
-        VREN::Renderer::ClearScreen(255, 255, 255, 255);
-        VREN::Renderer::Render();
+        ProcessInput(window.DeltaTime);
 
-        mesh.Render();
+        RenderScene();
 
-        // Normal line
-        VREN::Renderer::SubmitLine(lineStart, lineEnd, lineColor, lineThickness, lineCentered);
-
-        // Angle-based line
-        VREN::Renderer::SubmitLine(angledPos, angledAngle, angledLength, angledColor,
-                                   angledThickness, angledCentered);
-        ImGuiBegin();
-        ImGui::Begin("A");
-
-        bool changeW = ImGui::DragFloat("W", &width, 0.01, 0.0);
-        bool changeH = ImGui::DragFloat("H", &height, 0.01, 0.0);
-
-        if (changeW || changeH)
-        {
-            mesh.SetGeometry(std::make_shared<VREN::PlaneGeometry>(width, height));
-        }
-
-        ImGui::End();
-
-        ImGui::Begin("Line Controls");
-
-        // -----------------------
-        // Line 1
-        // -----------------------
-        ImGui::Text("Line 1 (Start -> End)");
-
-        ImGui::DragFloat2("Start", &lineStart.x, 0.1f);
-        ImGui::DragFloat2("End", &lineEnd.x, 0.1f);
-
-        ImGui::DragFloat("Thickness", &lineThickness, 0.1f, 0.1f, 500.0f);
-        ImGui::Checkbox("Centered##1", &lineCentered);
-
-        // integer color (convert to/from float)
-        {
-            float col[4] = {lineColor.r / 255.0f, lineColor.g / 255.0f, lineColor.b / 255.0f,
-                            lineColor.a / 255.0f};
-
-            if (ImGui::ColorEdit4("Color##1", col))
-            {
-                lineColor.r = int(col[0] * 255.0f);
-                lineColor.g = int(col[1] * 255.0f);
-                lineColor.b = int(col[2] * 255.0f);
-                lineColor.a = int(col[3] * 255.0f);
-            }
-        }
-
-        ImGui::Separator();
-
-        // -----------------------
-        // Line 2
-        // -----------------------
-        ImGui::Text("Line 2 (Angle + Length)");
-
-        ImGui::DragFloat2("Position##2", &angledPos.x, 0.1f);
-        ImGui::DragFloat("Angle (deg)", &angledAngle, 1.0f);
-        ImGui::DragFloat("Length", &angledLength, 0.5f, 1.0f, 2000.0f);
-
-        ImGui::DragFloat("Thickness##2", &angledThickness, 0.1f, 0.1f, 500.0f);
-        ImGui::Checkbox("Centered##2", &angledCentered);
-
-        // integer color (convert to/from float)
-        {
-            float col2[4] = {angledColor.r / 255.0f, angledColor.g / 255.0f, angledColor.b / 255.0f,
-                             angledColor.a / 255.0f};
-
-            if (ImGui::ColorEdit4("Color##2", col2))
-            {
-                angledColor.r = int(col2[0] * 255.0f);
-                angledColor.g = int(col2[1] * 255.0f);
-                angledColor.b = int(col2[2] * 255.0f);
-                angledColor.a = int(col2[3] * 255.0f);
-            }
-        }
-
-        ImGui::End();
-        ImGuiEnd();
+        RenderGUI();
 
         VREN::Renderer::EndFrame();
     }
