@@ -1,10 +1,11 @@
 #include "Renderer.h"
 #include "Batch/BatchRenderer.h"
-#include "Camera/PerspectiveCamera.h"
 #include "Core/Logger.h"
+#include "Math/Math.h"
 #include "Math/Transform.h"
 #include "Shader.h"
 #include "Texture.h"
+#include <cmath>
 #include <glad/glad.h>
 #include <memory>
 
@@ -20,11 +21,7 @@ namespace VREN
         VREN_LOG(Info, "Starting Renderer...");
         gladLoadGL();
 
-        GPUScreenConfiguration conf;
-        conf.Width = 1280;
-        conf.Height = 720;
-        state.Screen.Init(conf);
-
+        state.Screen.Init({.Width = 1280, .Height = 720});
         state.ObjectShader = std::make_shared<Shader>("Assets/Obj.glsl");
         state.BatchShader = std::make_shared<Shader>("Assets/BatchShader.glsl");
 
@@ -124,6 +121,56 @@ namespace VREN
             t2.Scale *= Vector3(size.x, size.y, 1);
 
         state.Batches[PLNE_BTCH_IDX]->Submit(t2, c);
+    }
+
+    void Renderer::SubmitLine(const Vector2 &start, const Vector2 &end, const Color &color,
+                              float thickness, bool centered)
+    {
+        Vector2 dir = end - start;
+        float length = sqrt(dir.x * dir.x + dir.y * dir.y);
+        float angle = atan2(dir.y, dir.x);
+
+        Vector2 mid = (start + end) * 0.5f;
+
+        // Create transform
+        Transform t;
+        t.Position = centered ? Vector3(mid.x, mid.y, 0) : Vector3(start.x, start.y, 0);
+
+        t.Rotation = Vector3(0, 0, angle * 180.0f / 3.14159265f);
+
+        Vector2 size(length, thickness);
+
+        if (!centered)
+        {
+            float dx = (length * 0.5f) * cos(angle);
+            float dy = (length * 0.5f) * sin(angle);
+            t.Position.x += dx;
+            t.Position.y += dy;
+        }
+
+        SubmitPlane(t, color, size);
+    }
+
+    void Renderer::SubmitLine(const Vector2 &pos, float angle, float length, const Color &color,
+                              float thickness, bool centered)
+    {
+        Transform t;
+        float rad = angle * DEG_TO_RAD;
+
+        if (centered)
+        {
+            t.Position = Vector3(pos.x, pos.y, 0);
+        }
+        else
+        {
+            float dx = (length * 0.5f) * cos(rad);
+            float dy = (length * 0.5f) * sin(rad);
+            t.Position = Vector3(pos.x + dx, pos.y + dy, 0);
+        }
+
+        t.Rotation = Vector3(0, 0, rad * 180.0f / 3.14159265f);
+
+        SubmitPlane(t, color, Vector2(length, thickness));
     }
 
     TextureHandle Renderer::GetDefaultTexture2DHandle() { return state.DefaultTexture2D; }

@@ -14,6 +14,22 @@
 
 float width = 200, height = 200;
 
+VREN::Vector2 lineStart(0.0f, 0.0f);
+VREN::Vector2 lineEnd(100.0f, 100.0f);
+
+VREN::Color lineColor(255, 0, 0, 255);
+
+float lineThickness = 5.0f;
+bool lineCentered = false;
+
+// ---- Angle-based line ----
+VREN::Vector2 angledPos(200.0f, 0.0f);
+float angledAngle = 45.0f; // degrees
+float angledLength = 150.0f;
+VREN::Color angledColor(0, 0, 255, 255);
+float angledThickness = 4.0f;
+bool angledCentered = false;
+
 std::shared_ptr<VREN::OrthographicCamera> camera =
     std::make_shared<VREN::OrthographicCamera>(1280, 720);
 
@@ -100,8 +116,12 @@ int main()
 
         mesh.Render();
 
-        VREN::Renderer::SubmitPlane({.Position{-500, 0, 0}}, {255, 0, 0, 255}, {500, 50});
+        // Normal line
+        VREN::Renderer::SubmitLine(lineStart, lineEnd, lineColor, lineThickness, lineCentered);
 
+        // Angle-based line
+        VREN::Renderer::SubmitLine(angledPos, angledAngle, angledLength, angledColor,
+                                   angledThickness, angledCentered);
         ImGuiBegin();
         ImGui::Begin("A");
 
@@ -111,6 +131,63 @@ int main()
         if (changeW || changeH)
         {
             mesh.SetGeometry(std::make_shared<VREN::PlaneGeometry>(width, height));
+        }
+
+        ImGui::End();
+
+        ImGui::Begin("Line Controls");
+
+        // -----------------------
+        // Line 1
+        // -----------------------
+        ImGui::Text("Line 1 (Start -> End)");
+
+        ImGui::DragFloat2("Start", &lineStart.x, 0.1f);
+        ImGui::DragFloat2("End", &lineEnd.x, 0.1f);
+
+        ImGui::DragFloat("Thickness", &lineThickness, 0.1f, 0.1f, 500.0f);
+        ImGui::Checkbox("Centered##1", &lineCentered);
+
+        // integer color (convert to/from float)
+        {
+            float col[4] = {lineColor.r / 255.0f, lineColor.g / 255.0f, lineColor.b / 255.0f,
+                            lineColor.a / 255.0f};
+
+            if (ImGui::ColorEdit4("Color##1", col))
+            {
+                lineColor.r = int(col[0] * 255.0f);
+                lineColor.g = int(col[1] * 255.0f);
+                lineColor.b = int(col[2] * 255.0f);
+                lineColor.a = int(col[3] * 255.0f);
+            }
+        }
+
+        ImGui::Separator();
+
+        // -----------------------
+        // Line 2
+        // -----------------------
+        ImGui::Text("Line 2 (Angle + Length)");
+
+        ImGui::DragFloat2("Position##2", &angledPos.x, 0.1f);
+        ImGui::DragFloat("Angle (deg)", &angledAngle, 1.0f);
+        ImGui::DragFloat("Length", &angledLength, 0.5f, 1.0f, 2000.0f);
+
+        ImGui::DragFloat("Thickness##2", &angledThickness, 0.1f, 0.1f, 500.0f);
+        ImGui::Checkbox("Centered##2", &angledCentered);
+
+        // integer color (convert to/from float)
+        {
+            float col2[4] = {angledColor.r / 255.0f, angledColor.g / 255.0f, angledColor.b / 255.0f,
+                             angledColor.a / 255.0f};
+
+            if (ImGui::ColorEdit4("Color##2", col2))
+            {
+                angledColor.r = int(col2[0] * 255.0f);
+                angledColor.g = int(col2[1] * 255.0f);
+                angledColor.b = int(col2[2] * 255.0f);
+                angledColor.a = int(col2[3] * 255.0f);
+            }
         }
 
         ImGui::End();

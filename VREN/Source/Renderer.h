@@ -40,6 +40,10 @@ namespace VREN
         static void SubmitCube(const Transform &t, const Color &c, const Vector3 &size = {1, 1, 1});
         static void SubmitPlane(const Transform &t, const Color &c,
                                 const Vector2 &size = {100, 100});
+        static void SubmitLine(const Vector2 &start, const Vector2 &end, const Color &color,
+                               float thickness = 1.0f, bool centered = true);
+        static void SubmitLine(const Vector2 &pos, float angle, float length, const Color &color,
+                               float thickness, bool centered);
 
         static TextureHandle GetDefaultTexture2DHandle();
 
