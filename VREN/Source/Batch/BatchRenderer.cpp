@@ -32,7 +32,7 @@ namespace VREN
 
         shader->Use();
         shader->Mat4(cam->GetProjection(), "uProj");
-        shader->Mat4(cam->GetView(), "uView");
+        shader->Mat4(Matrix4::Invert(cam->GetView()), "uView");
 
         geometryVAO->Bind();
         glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0, instanceCount);
@@ -102,6 +102,154 @@ namespace VREN
 
         geometryVAO->GetVertexBuffer()->AddLayout(0, 0, 3);
         indexCount = sizeof(indices) / sizeof(unsigned int);
+
+        glGenBuffers(1, &instanceVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+        glBufferData(GL_ARRAY_BUFFER, MaxInstances * sizeof(InstanceData), nullptr,
+                     GL_DYNAMIC_DRAW);
+
+        for (int i = 0; i < 4; i++)
+        {
+            glEnableVertexAttribArray(1 + i);
+            glVertexAttribPointer(1 + i, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData),
+                                  (void *)(sizeof(float) * 4 * i));
+            glVertexAttribDivisor(1 + i, 1);
+        }
+
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData),
+                              (void *)sizeof(Matrix4));
+        glVertexAttribDivisor(5, 1);
+
+        glBindVertexArray(0);
+    }
+
+    void SphereBatchRenderer::Init()
+    {
+        int rings = 16;
+        int segments = 32;
+
+        std::vector<float> vertices;
+        std::vector<unsigned> indices;
+
+        for (int y = 0; y <= rings; y++)
+        {
+            float v = float(y) / rings;
+            float phi = v * 3.1415926f;
+
+            for (int x = 0; x <= segments; x++)
+            {
+                float u = float(x) / segments;
+                float theta = u * 6.2831852f;
+
+                float sx = sinf(phi);
+                float ex = sx * cosf(theta);
+                float ey = cosf(phi);
+                float ez = sx * sinf(theta);
+
+                vertices.push_back(ex * 0.5f);
+                vertices.push_back(ey * 0.5f);
+                vertices.push_back(ez * 0.5f);
+            }
+        }
+
+        for (int y = 0; y < rings; y++)
+        {
+            for (int x = 0; x < segments; x++)
+            {
+                int i0 = y * (segments + 1) + x;
+                int i1 = i0 + 1;
+                int i2 = i0 + (segments + 1);
+                int i3 = i2 + 1;
+
+                indices.push_back(i0);
+                indices.push_back(i2);
+                indices.push_back(i1);
+
+                indices.push_back(i1);
+                indices.push_back(i2);
+                indices.push_back(i3);
+            }
+        }
+
+        geometryVAO = std::make_unique<VertexArray>();
+        geometryVAO->Bind();
+
+        geometryVAO->GenerateVertexBuffer(vertices.data(), vertices.size() * sizeof(float));
+        geometryVAO->GenerateIndexBuffer(indices.data(), indices.size() * sizeof(unsigned));
+
+        geometryVAO->GetVertexBuffer()->AddLayout(0, 0, 3);
+        indexCount = indices.size();
+
+        glGenBuffers(1, &instanceVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+        glBufferData(GL_ARRAY_BUFFER, MaxInstances * sizeof(InstanceData), nullptr,
+                     GL_DYNAMIC_DRAW);
+
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void *)0);
+        glVertexAttribDivisor(1, 1);
+
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData),
+                              (void *)(sizeof(float) * 4));
+        glVertexAttribDivisor(2, 1);
+
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData),
+                              (void *)(sizeof(float) * 8));
+        glVertexAttribDivisor(3, 1);
+
+        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData),
+                              (void *)(sizeof(float) * 12));
+        glVertexAttribDivisor(4, 1);
+
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData),
+                              (void *)sizeof(Matrix4));
+        glVertexAttribDivisor(5, 1);
+
+        glBindVertexArray(0);
+    }
+
+    void CircleBatchRenderer::Init()
+    {
+        const int segments = 64;
+
+        std::vector<float> vertices;
+        std::vector<unsigned> indices;
+
+        vertices.push_back(0.0f);
+        vertices.push_back(0.0f);
+        vertices.push_back(0.0f);
+
+        for (int i = 0; i <= segments; i++)
+        {
+            float t = float(i) / segments * 6.2831852f;
+            float x = cosf(t) * 0.5f;
+            float y = sinf(t) * 0.5f;
+
+            vertices.push_back(x);
+            vertices.push_back(y);
+            vertices.push_back(0.0f);
+        }
+
+        for (int i = 1; i <= segments; i++)
+        {
+            indices.push_back(0);
+            indices.push_back(i);
+            indices.push_back(i + 1);
+        }
+
+        geometryVAO = std::make_unique<VertexArray>();
+        geometryVAO->Bind();
+
+        geometryVAO->GenerateVertexBuffer(vertices.data(), vertices.size() * sizeof(float));
+        geometryVAO->GenerateIndexBuffer(indices.data(), indices.size() * sizeof(unsigned));
+
+        geometryVAO->GetVertexBuffer()->AddLayout(0, 0, 3);
+        indexCount = indices.size();
 
         glGenBuffers(1, &instanceVBO);
         glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);

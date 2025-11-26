@@ -7,7 +7,6 @@
 namespace VREN
 {
     class VertexArray;
-    class PerspectiveCamera;
     class Shader;
     class Transform;
 
@@ -45,6 +44,18 @@ namespace VREN
     };
 
     class PlaneBatchRenderer : public BatchRenderer
+    {
+    public:
+        void Init();
+    };
+
+    class SphereBatchRenderer : public BatchRenderer
+    {
+    public:
+        void Init();
+    };
+
+    class CircleBatchRenderer : public BatchRenderer
     {
     public:
         void Init();

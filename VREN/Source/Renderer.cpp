@@ -11,6 +11,8 @@
 
 #define CUBE_BTCH_IDX 0
 #define PLNE_BTCH_IDX 1
+#define SPHR_BTCH_IDX 2
+#define CRCL_BTCH_IDX 3
 
 namespace VREN
 {
@@ -30,9 +32,11 @@ namespace VREN
 
         // setup batch Renderer
         {
-            state.Batches.resize(2);
+            state.Batches.resize(4);
             state.Batches[CUBE_BTCH_IDX] = std::make_unique<CubeBatchRenderer>();
             state.Batches[PLNE_BTCH_IDX] = std::make_unique<PlaneBatchRenderer>();
+            state.Batches[SPHR_BTCH_IDX] = std::make_unique<SphereBatchRenderer>();
+            state.Batches[CRCL_BTCH_IDX] = std::make_unique<CircleBatchRenderer>();
 
             for (auto &b : state.Batches)
                 b->Init();
@@ -63,7 +67,7 @@ namespace VREN
         if (state.ActiveCamera)
         {
             state.ObjectShader->Mat4(state.ActiveCamera->GetProjection(), "uProj");
-            state.ObjectShader->Mat4(state.ActiveCamera->GetView(), "uView");
+            state.ObjectShader->Mat4(Matrix4::Invert(state.ActiveCamera->GetView()), "uView");
         }
     }
 
@@ -171,6 +175,20 @@ namespace VREN
         t.Rotation = Vector3(0, 0, rad * 180.0f / 3.14159265f);
 
         SubmitPlane(t, color, Vector2(length, thickness));
+    }
+
+    void Renderer::SubmitSphere(const Transform &t, const Color &color, float radius)
+    {
+        Transform t2 = t;
+        t2.Scale *= radius;
+        state.Batches[SPHR_BTCH_IDX]->Submit(t2, color);
+    }
+
+    void Renderer::SubmitCircle(const Transform &t, const Color &color, float radius)
+    {
+        Transform t2 = t;
+        t2.Scale *= radius;
+        state.Batches[CRCL_BTCH_IDX]->Submit(t2, color);
     }
 
     TextureHandle Renderer::GetDefaultTexture2DHandle() { return state.DefaultTexture2D; }

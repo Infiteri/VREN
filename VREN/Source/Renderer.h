@@ -44,6 +44,8 @@ namespace VREN
                                float thickness = 1.0f, bool centered = true);
         static void SubmitLine(const Vector2 &pos, float angle, float length, const Color &color,
                                float thickness, bool centered);
+        static void SubmitSphere(const Transform &t, const Color &color, float radius = 1.0f);
+        static void SubmitCircle(const Transform &t, const Color &color, float radius = 1.0f);
 
         static TextureHandle GetDefaultTexture2DHandle();
 
