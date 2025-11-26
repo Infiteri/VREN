@@ -22,13 +22,16 @@ namespace VREN
         inline float Height() const { return height; }
         inline float Near() const { return near; }
         inline float Far() const { return far; }
+        inline float Zoom() const { return zoom; };
 
         void SetWidth(float w, bool recalcualteProjection = true);
         void SetHeight(float h, bool recalcualteProjection = true);
         void SetNear(float n, bool recalcualteProjection = true);
         void SetFar(float f, bool recalcualteProjection = true);
+        void SetZoom(float z, bool recalcualteProjection = true);
 
     private:
         float width, height, near, far;
+        float zoom = 1;
     };
 } // namespace VREN

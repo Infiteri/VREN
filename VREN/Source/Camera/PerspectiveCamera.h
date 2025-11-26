@@ -34,4 +34,4 @@ namespace VREN
     private:
         float fov, aspect, near, far;
     };
-} // namespace Core
+} // namespace VREN

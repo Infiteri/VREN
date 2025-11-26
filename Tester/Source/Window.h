@@ -14,6 +14,8 @@ struct Window
     void Update();
     void Shutdown();
 
+    bool GetKey(int key);
+
 private:
     double lastFrameTime;
 };

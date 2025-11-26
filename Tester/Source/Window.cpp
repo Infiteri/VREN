@@ -1,5 +1,6 @@
 
 #include "Window.h"
+#include "GLFW/glfw3.h"
 
 void Window::Init(int width, int height, const char *title)
 {
@@ -39,3 +40,5 @@ void Window::Shutdown()
     glfwDestroyWindow(handle);
     glfwTerminate();
 }
+
+bool Window::GetKey(int key) { return glfwGetKey(handle, key); }
